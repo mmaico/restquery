@@ -1,0 +1,4 @@
+name.contains(maico*).and(age.gt(40)).and(tradingName.eq(company*))
+
+
+
