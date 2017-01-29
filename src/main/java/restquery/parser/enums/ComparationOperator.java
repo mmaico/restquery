@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import static com.google.common.collect.Lists.newArrayList;
 
 public enum ComparationOperator {
-    EQ("eq"), GT("gt"), LT("lt"), GTE("gte"), LTE("lte"), CONTAINS("contains");
+    EQ("eq"), GT("gt"), LT("lt"), GTE("gte"), LTE("lte"), CONTAINS("contains"), CONTAINS_ALL("containsAll");
 
     private String comparation;
 

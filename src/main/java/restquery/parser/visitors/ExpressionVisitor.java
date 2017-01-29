@@ -6,16 +6,25 @@ import restquery.parser.antlr.LanguageParser;
 import restquery.parser.dtos.Expression;
 import restquery.parser.enums.ComparationOperator;
 
+import java.util.stream.Collectors;
+
 public class ExpressionVisitor extends LanguageBaseVisitor<Expression> {
+
+    private static final String DOT = ".";
+    private static final int FIRST_CONTEXT = 0;
 
     @Override public Expression visitExpression(LanguageParser.ExpressionContext ctx) {
         AttributeVisitor attributeVisitor = new AttributeVisitor();
         ValueVisitor valueVisitor = new ValueVisitor();
         ComparationVisitor comparationVisitor = new ComparationVisitor();
 
-        String attribute = ctx.attribute().accept(attributeVisitor);
-        ComparationOperator comparationOperator = ctx.comparation().get(0).accept(comparationVisitor);
-        String value = ctx.value().get(0).accept(valueVisitor);
+        String attribute = ctx.attribute().stream()
+                .map(attributeContext -> attributeContext.accept(attributeVisitor))
+                .collect(Collectors.joining(DOT));
+
+        ComparationOperator comparationOperator = ctx.comparationOperator().get(FIRST_CONTEXT).accept(comparationVisitor);
+
+        String value = ctx.value().get(FIRST_CONTEXT).accept(valueVisitor);
 
         return new Expression(attribute, value, comparationOperator);
     }

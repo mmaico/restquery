@@ -11,7 +11,7 @@ import static restquery.parser.enums.ComparationOperator.contains;
 public class ComparationVisitor extends LanguageBaseVisitor <ComparationOperator> {
 
 
-    @Override public ComparationOperator visitComparation(LanguageParser.ComparationContext ctx) {
+    @Override public ComparationOperator visitComparationOperator(LanguageParser.ComparationOperatorContext ctx) {
         if (!contains(ctx.getText())) {
             throw new RuntimeException(message(ctx.getStart().getText(), ComparationOperator.getOptions()));
         }

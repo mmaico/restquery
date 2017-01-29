@@ -3,6 +3,8 @@ package restquery.drivers;
 
 import com.google.common.collect.Lists;
 import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.search.MatchQuery;
+import restquery.helpers.ExpressionUtils;
 import restquery.parser.dtos.Expression;
 import restquery.parser.dtos.LanguageBuilt;
 import restquery.parser.dtos.LogicalExpression;
@@ -14,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 
 import static restquery.helpers.ExpressionUtils.isLogicalExpression;
+import static restquery.helpers.ExpressionUtils.isPhraseQuery;
+import static restquery.helpers.ExpressionUtils.isPrefixQuery;
 import static restquery.parser.enums.ComparationOperator.*;
 import static restquery.parser.enums.LogicalOperator.*;
 
@@ -32,12 +36,37 @@ public class ElasticSearchDriver {
     private final Map<ComparationOperator, ComparationOperatorConverter> comparations = new HashMap<>();
        {
            comparations.put(CONTAINS, expression -> {
-               TermQueryBuilder termQuery = QueryBuilders.termQuery(expression.getAttribute(), expression.getValue());
+               MatchQueryBuilder queryBuilder;
+
+               if (isPhraseQuery(expression.getValue())) {
+                   queryBuilder = QueryBuilders.matchPhraseQuery(expression.getAttribute(), expression.getValue());
+               } else {
+                   if (isPrefixQuery(expression.getValue())) {
+                       queryBuilder = QueryBuilders.matchPhrasePrefixQuery(expression.getAttribute(), expression.getValue());
+                   } else {
+                       queryBuilder = QueryBuilders.matchQuery(expression.getAttribute(), expression.getValue())
+                               .operator(MatchQueryBuilder.Operator.OR);
+                   }
+               }
+
                if (isLogicalExpression(expression)) {
                    LogicalExpression logicalExpression = (LogicalExpression) expression;
-                   operator.get(logicalExpression.getLogical()).execute(termQuery);
+                   operator.get(logicalExpression.getLogical()).execute(queryBuilder);
                } else {
-                   boolQuery.must(termQuery);
+                   boolQuery.must(queryBuilder);
+               }
+           });
+
+           comparations.put(CONTAINS_ALL, expression -> {
+               MatchQueryBuilder matchQuery = QueryBuilders
+                       .matchQuery(expression.getAttribute(), expression.getValue())
+                        .operator(MatchQueryBuilder.Operator.AND);
+
+               if (isLogicalExpression(expression)) {
+                   LogicalExpression logicalExpression = (LogicalExpression) expression;
+                   operator.get(logicalExpression.getLogical()).execute(matchQuery);
+               } else {
+                   boolQuery.must(matchQuery);
                }
            });
 

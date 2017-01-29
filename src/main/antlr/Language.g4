@@ -6,18 +6,18 @@ grammar Language;
 
 language : expression + (logicalExpression)* ;
 
-expression : attribute ('.' comparationOperator)+ ('('value')')+ ;
+expression : (attribute '.')+ (comparationOperator)+ ('('value')')+ ;
 logicalExpression : ('.' operators) ('('expression')') ;
 
 operators : 'and' | 'or' | 'not' ;
 
 attribute : STRING ;
 
-comparationOperator : 'eq' | 'gt' | 'lt' | 'gte' | 'lte' | 'contains' ;
+comparationOperator : 'eq' | 'gt' | 'lt' | 'gte' | 'lte' | 'contains' | 'containsAll' ;
 
-value : (STRING (SPACE STRING)* | NUMBER);
+value : (STRING (SPACE STRING)* | '"'STRING (SPACE STRING)'"' | NUMBER) ;
 
-SPACE : (' ' | '\t')+ -> skip ;
+SPACE : ' ' ;
 STRING : ('a'..'z'|'A'..'Z' | '*')+ ;
 NUMBER : '0'..'9'+ ;
 
