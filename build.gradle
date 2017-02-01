@@ -1,12 +1,28 @@
-group 'br.com.restquery'
-version '1.0-SNAPSHOT'
+import java.text.SimpleDateFormat
+
+plugins {
+    id "com.jfrog.bintray" version "1.2"
+}
+
+def siteUrl = 'https://github.com/mmaico/restquery'      // Homepage URL of the library
+def gitUrl = 'https://github.com/mmaico/restquery.git'
+def issueUrl = 'https://github.com/mmaico/restquery.git/issues'
+
+group 'restquery'
+version '1.0.0-SNAPSHOT'
 
 apply plugin: 'groovy'
 apply plugin: 'java'
 apply plugin: 'antlr'
+apply plugin: 'net.researchgate.release'
 apply plugin: 'idea'
+apply plugin: 'com.jfrog.bintray'
+apply plugin: 'maven-publish'
 
 sourceCompatibility = 1.8
+
+def releaseVersion = System.properties.RELEASE_VERSION
+version = releaseVersion ? releaseVersion : new SimpleDateFormat('yyyy-MM-dd\'T\'HH-mm-ss').format(new Date())
 
 repositories {
     mavenCentral()
@@ -35,15 +51,14 @@ generateGrammarSource {
     outputDirectory = file("${project.buildDir}/generated-src/antlr/main/restquery/parser/antlr")
 }
 
-task sourcesJar(type: Jar) {
-    dependsOn classes
-    classifier 'sources'
-    from sourceSets.main.allSource
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from 'build/docs/javadoc'
 }
 
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
 }
 
 artifacts {
@@ -51,7 +66,69 @@ artifacts {
     archives javadocJar
 }
 
+task writeNewPom << {
+    pom {
+        project {
+            inceptionYear '2016'
+            licenses {
+                license {
+                    name 'The Apache Software License, Version 2.0'
+                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    distribution 'repo'
+                }
+            }
+
+            developers {
+                developer {
+                    id "mmaico"
+                    name "Marcelo Maico"
+                    email "mmaico@gmail.com"
+                }
+            }
+
+        }
+    }.writeTo("$buildDir/libs/$project.name-$project.version" + ".xml")
+}
+
+build.dependsOn writeNewPom
+build.dependsOn javadocJar
+
+bintray {
+    user = project.hasProperty('user') ? project.user : System.getenv("user")
+    key = project.hasProperty('key') ? project.key : System.getenv("key")
+    publications = ['Publication']
+    pkg {
+        repo = 'maven'
+        name = 'rest-query'
+        licenses = ['Apache-2.0']
+        vcsUrl = gitUrl
+        websiteUrl = siteUrl
+        issueTrackerUrl = issueUrl
+        publish = true
+        version {
+            name = '1.0.0'
+            desc = 'Rest Query API'
+            released  = new Date()
+            vcsTag = '1.0.0'
+        }
+    }
+}
+
+publishing {
+    publications {
+        Publication(MavenPublication) {
+            artifact jar
+            groupId 'restquery'
+            artifactId 'restquery'
+            version '1.0.0'
+        }
+    }
+}
+
 task wrapper(type: Wrapper) {
     gradleVersion = '3.2'
     distributionUrl = "http://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
 }
+
+//Generate release.
+//gradle release -Prelease.useAutomaticVersion=true -Prelease.releaseVersion=1.1.0 -Prelease.newVersion=1.2.0-SNAPSHOT
