@@ -1,0 +1,90 @@
+[
+  {
+    "cenario": "should converter a simple expression in elasticsearch query",
+    "json": {
+          "bool" : {
+            "must" : {
+              "match" : {
+                "name" : {
+                  "query" : "maico",
+                  "type" : "boolean"
+                }
+              }
+            }
+          }
+        }
+  },
+  {
+    "cenario": "should converter a logical expression in elasticsearch query",
+    "json": {
+        "bool" : {
+          "must" : {
+            "match" : {
+              "name" : {
+                "query" : "maico",
+                "type" : "boolean"
+              }
+            }
+          },
+          "should" : {
+            "match" : {
+              "lastName" : {
+                "query" : "marcelo",
+                "type" : "boolean",
+                "operator" : "OR"
+              }
+            }
+          }
+        }
+      }
+  },
+  {
+    "cenario": "should converter to prefix query",
+    "json": {
+      "bool" : {
+        "must" : {
+          "match" : {
+            "name" : {
+              "query" : "maico*",
+              "type" : "phrase_prefix"
+            }
+          }
+        },
+        "should" : {
+          "match" : {
+            "lastName" : {
+              "query" : "marcelo",
+              "type" : "boolean",
+              "operator" : "OR"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "cenario": "should converter to a phrase query",
+    "json": {
+      "bool" : {
+        "must" : {
+          "match" : {
+            "name" : {
+              "query" : "marcelo",
+              "type" : "boolean",
+              "operator" : "OR"
+            }
+          }
+        },
+        "should" : {
+          "match" : {
+            "address.street" : {
+              "query" : "\"street one\"",
+              "type" : "phrase"
+            }
+          }
+        }
+      }
+    }
+  }
+
+]

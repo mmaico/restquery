@@ -5,8 +5,11 @@ import restquery.parser.antlr.LanguageBaseVisitor;
 import restquery.parser.antlr.LanguageParser;
 import restquery.parser.dtos.Expression;
 import restquery.parser.enums.ComparationOperator;
+import restquery.parser.exception.InvalidExpressionException;
 
 import java.util.stream.Collectors;
+
+import static restquery.helpers.ExceptionMessageUtils.messageAfter;
 
 public class ExpressionVisitor extends LanguageBaseVisitor<Expression> {
 
@@ -21,6 +24,10 @@ public class ExpressionVisitor extends LanguageBaseVisitor<Expression> {
         String attribute = ctx.attribute().stream()
                 .map(attributeContext -> attributeContext.accept(attributeVisitor))
                 .collect(Collectors.joining(DOT));
+
+        if (ctx.comparationOperator().isEmpty()) {
+            throw new InvalidExpressionException(messageAfter(attribute, ComparationOperator.getOptions()));
+        }
 
         ComparationOperator comparationOperator = ctx.comparationOperator().get(FIRST_CONTEXT).accept(comparationVisitor);
 

@@ -3,17 +3,16 @@ package restquery.parser;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.atn.PredictionMode;
-import restquery.drivers.ElasticSearchDriver;
 import restquery.parser.antlr.LanguageLexer;
 import restquery.parser.antlr.LanguageParser;
 import restquery.parser.dtos.LanguageBuilt;
 import restquery.parser.visitors.LanguageVisitor;
 
 
-public class ElasticsearchParser {
+public class ObjectParser {
 
 
-    public String parseToElastisearchQuery(String queryString) {
+    public LanguageBuilt parserToLanguageObjects(String queryString) {
 
         ANTLRInputStream input  = new ANTLRInputStream(queryString);
         LanguageLexer lexer = new LanguageLexer(input);
@@ -23,10 +22,7 @@ public class ElasticsearchParser {
         parser.removeErrorListeners();
         parser.getInterpreter().setPredictionMode(PredictionMode.SLL);
         LanguageVisitor lang = new LanguageVisitor();
-        LanguageBuilt languageBuilt = lang.visitLanguage(parser.language());
 
-        return ElasticSearchDriver.build(languageBuilt);
+        return lang.visitLanguage(parser.language());
     }
-
-
 }
