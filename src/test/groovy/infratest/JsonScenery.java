@@ -11,7 +11,7 @@ import java.util.List;
 
 public class JsonScenery implements SceneryStrategy {
   
-  final Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+  final Gson gson = new GsonBuilder().serializeNulls().disableHtmlEscaping().create();
 
   @Override
   @SuppressWarnings("all")

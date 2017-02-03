@@ -58,4 +58,15 @@ class ElasticsearchParserTest extends Specification {
         then:
             queryResult == queryExpected
     }
+
+    @Unroll
+    "should converter to a range query" () {
+        given: "a expression"
+            def expression = "name.contains(marcelo).or(age.gte(40))"
+        when: "execute builder"
+            def queryResult = new JsonSlurper().parseText(new ElasticsearchParser().parseToElastisearchQuery(expression))
+            def queryExpected = new JsonSlurper().parseText(getRequestScenery("should converter to a range query").json)
+        then:
+            queryResult == queryExpected
+    }
 }

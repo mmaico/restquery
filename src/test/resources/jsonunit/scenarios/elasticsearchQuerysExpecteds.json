@@ -85,6 +85,32 @@
         }
       }
     }
+  },
+  {
+    "cenario": "should converter to a range query",
+    "json": {
+      "bool" : {
+        "must" : {
+          "match" : {
+            "name" : {
+              "query" : "marcelo",
+              "type" : "boolean",
+              "operator" : "OR"
+            }
+          }
+        },
+        "should" : {
+          "range" : {
+            "age" : {
+              "from" : "40",
+              "to" : null,
+              "include_lower" : true,
+              "include_upper" : true
+            }
+          }
+        }
+      }
+    }
   }
 
 ]
